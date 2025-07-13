@@ -1,20 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface User {
-  id: string;
-  fullName: string;
-  email: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (fullName: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -24,12 +10,8 @@ export const useAuth = () => {
   return context;
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
@@ -38,16 +20,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const signup = async (fullName: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (fullName, email, password) => {
     try {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       
       // Check if user already exists
-      if (users.find((u: User) => u.email === email)) {
+      if (users.find((u) => u.email === email)) {
         return false;
       }
 
-      const newUser: User = {
+      const newUser = {
         id: Date.now().toString(),
         fullName,
         email,
@@ -64,10 +46,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email, password) => {
     try {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find((u: any) => u.email === email && u.password === password);
+      const user = users.find((u) => u.email === email && u.password === password);
       
       if (user) {
         const userWithoutPassword = { id: user.id, fullName: user.fullName, email: user.email };
@@ -95,4 +77,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}; 

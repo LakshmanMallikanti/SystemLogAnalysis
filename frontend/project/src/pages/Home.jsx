@@ -1,36 +1,27 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { LogOut, Upload, File, X, FolderOpen, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-interface UploadedFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  uploadDate: string;
-  path?: string;
-}
-
-const Home: React.FC = () => {
+const Home = () => {
   const { user, logout } = useAuth();
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [manualPath, setManualPath] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [result, setResult] = useState<string[] | null>(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [result, setResult] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles) => {
     setIsUploading(true);
     setResult(null);
     setSubmitError(null);
     setSelectedFile(acceptedFiles[0] || null); // Only allow one file for testing
     
     setTimeout(() => {
-      const newFiles: UploadedFile[] = acceptedFiles.map(file => ({
+      const newFiles = acceptedFiles.map(file => ({
         id: Date.now().toString() + Math.random().toString(36),
         name: file.name,
         size: file.size,
@@ -49,14 +40,14 @@ const Home: React.FC = () => {
     multiple: true,
   });
 
-  const handleManualPathSubmit = (e: React.FormEvent) => {
+  const handleManualPathSubmit = (e) => {
     e.preventDefault();
     if (!manualPath.trim()) return;
 
     const pathParts = manualPath.split('/');
     const fileName = pathParts[pathParts.length - 1];
     
-    const newFile: UploadedFile = {
+    const newFile = {
       id: Date.now().toString(),
       name: fileName || 'Unknown File',
       size: 0,
@@ -70,7 +61,7 @@ const Home: React.FC = () => {
     toast.success('File path added successfully!');
   };
 
-  const removeFile = (id: string) => {
+  const removeFile = (id) => {
     setUploadedFiles(prev => prev.filter(file => file.id !== id));
     toast.success('File removed successfully!');
   };
@@ -108,7 +99,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (bytes) => {
     if (bytes === 0) return 'N/A';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -116,7 +107,7 @@ const Home: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -303,4 +294,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Home; 
